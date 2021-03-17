@@ -62,10 +62,10 @@ class Game_Info:
 
 
 #Script for getting games
-def get_games(team, date, year):
+def get_games(team, date, end_date ,year):
     # script to create list of game_info objects for a single team
     #log = team_log(team, date, date)
-    log = team_log(team, date, '03-02-2021', year)
+    log = team_log(team, date, end_date, year)
     games = {}
 
     for key, val in log.items():
@@ -82,5 +82,3 @@ def get_games(team, date, year):
         #print(game.o_basic)
         #print(game.o_advanced)func('LAL', '01-06-2006', '2006')
     return game
-
-func('LAL', '01-06-2006', '2006')

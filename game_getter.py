@@ -1,7 +1,6 @@
 from NBA_Games import get_games
 
-
-g = get_games('LAL', '01-06-2006', '2006')
+g = get_games('LAL', '01-06-2006', '01-06-2006' '2006')
 
 print(g.team, game.team_score)
 print(g.opponent, game.o_score)
