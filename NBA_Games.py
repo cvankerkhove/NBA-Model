@@ -81,4 +81,4 @@ def get_games(team, date, end_date ,year):
         #print(game.advanced_player_data)
         #print(game.o_basic)
         #print(game.o_advanced)func('LAL', '01-06-2006', '2006')
-    return game
+    return games
