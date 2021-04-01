@@ -86,6 +86,7 @@ class Averages:
         #Pandas DataFrame of players averages (advanced stats)
         self.advanced_player_data = a_game
         self.advanced_player_data.insert(0, 'Players', names)
+        self.advanced_player_data.insert(1, 'MP', MP2)
 
         #games played dicitonary for averages
         self.players_games_played = {}
@@ -166,6 +167,7 @@ class Averages:
         a_game = a_game.replace('', 0, regex=True)
         #converting to numerical data
         a_game = a_game.astype(float)
+        a_game.insert(1, 'MP', MP2)
 
         ##Updating Averages
         for n,p in enumerate(names):
@@ -195,16 +197,6 @@ class Averages:
                 self.basic_player_data = self.basic_player_data.append(b_data, ignore_index = True)
                 self.advanced_player_data = self.advanced_player_data.append(a_data, ignore_index=True)
 
-
-    def update_player_basic_averages(self, game):
-        """
-        Updates the averages of the player advanced stats on given team,
-        adds player to data container if players averages are not yet recorded
-        for given games
-        Arg(s):
-            game: an object of class Game_Info that you want to average in
-        """
-        ##Advanced Player Data
-        a_game = game.advanced_player_data
-        #players names from new data
-        names = b_game.pop('Players')
+        #sorting df by minutes played
+        self.basic_player_data.sort_values(by='MP', ascending=False)
+        self.advanced_player_data.sort_values(by='MP', ascending = False)

@@ -77,7 +77,7 @@ class Game_Info:
 
 
 
-def get_games(team, start_date, end_date ,season):
+def get_games(team, start_date='12-20', end_date='05-12' , season=2021):
     """
     Gets games calling webscraping functions. Begin collecting games from input
     start date to input end date in a specified season.
@@ -90,6 +90,7 @@ def get_games(team, start_date, end_date ,season):
         end_date: The ending date to collect last game on
         season: The year of specificed season (single year, year season ends in)
     """
+    #TODO: Try catch block for invalid date input
     # script to create list of game_info objects for a single team
     #log = team_log(team, date, date)
     log = team_log(team, start_date, end_date, season)

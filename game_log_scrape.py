@@ -84,10 +84,10 @@ def get_box_score(team, opponent, game, box_type):
     return data, team_tot, opponent_tot
 
 
-def team_log(team, start_date = '12-20', end_date = '03-20', year = '2021'):
+def team_log(team, start_date, end_date, year):
     """
     Takes an input of a string representation of a
-    team and returns
+    team and returns a dictionary of games with values being lists of info
     Arg(s):
         team: 3 letter string representation of Team
         start: start date to begin collecting games
@@ -164,7 +164,7 @@ def team_log(team, start_date = '12-20', end_date = '03-20', year = '2021'):
         start_day = 1
         months.pop(0)
         if len(months) == 1:
-            end_day = int(end[3:5])
+            end_day = int(end_date[3:5])
         elif len(months) == 0:
             stop = True
 
