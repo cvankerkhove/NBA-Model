@@ -12,14 +12,14 @@ g1 = games.pop(list(games.keys())[0])
 avg1 = Averages(g1)
 for key,val in games.items():
     avg1.update_player_averages(val)
+    avg1.update_team_avg(val)
 #player data
 print(avg1.players_games_played)
 print(avg1.basic_player_data)
 print(avg1.advanced_player_data)
 #team data
-print(avg1.team_basic)
-print(avg1.op_basic)
-
+print(avg1.teams_basic)
+print(avg1.teams_advanced)
 
 
 ##Getting Averages for James Harden over 'Flamethrower stretch'
@@ -28,6 +28,8 @@ g1 = games.pop(list(games.keys())[0])
 avg1 = Averages(g1)
 for key,val in games.items():
     avg1.update_player_averages(val)
+    avg1.update_team_avg(val)
+
 #player data
 print(avg1.players_games_played['James Harden'])
 is_james = avg1.basic_player_data['Players'] == 'James Harden'

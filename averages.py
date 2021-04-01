@@ -14,10 +14,8 @@ class Averages:
 
     #class variables: (see __init__ for further descriptions)
     #game_count
-    #team_basic
-    #team_advanced
-    #op_basic
-    #op_advanced
+    #teams_basic
+    #teams_advanced
     #basic_player_data
     #advanced_player_data
     #player_games_played
@@ -31,26 +29,20 @@ class Averages:
         ###Initializing team averages from input game###
         #the number of games this average represents
         self.game_count = 1
-        #team, basic averages
-        self.team_basic = {}
-        del game.team_basic['+/-']
-        for key, val in game.team_basic.items():
-            self.team_basic[key] = float(val)
-        #team, advanced averages
-        self.team_advanced = {}
-        del game.team_advanced['BPM']
-        for key, val in game.team_advanced.items():
-            self.team_advanced[key] = float(val)
-        #opponents, basic averages
-        self.op_basic = {}
-        del game.op_basic['+/-']
-        for key, val in game.op_basic.items():
-            self.op_basic[key] = float(val)
-        #opponents, advanced averages
-        self.op_advanced = {}
-        del game.op_advanced['BPM']
-        for key, val in game.op_advanced.items():
-            self.op_advanced[key] = float(val)
+
+        #teams, basic averages
+        teams = game.teams_basic.pop('Team')
+        b_df = game.teams_basic.drop('Home Team ?', axis=1)
+        #making opponent teams lanel 'Opponent'
+        for i, x in enumerate(teams):
+            if x != game.team:
+                teams[i] = 'Opponent'
+        self.teams_basic = b_df.astype(float)
+        self.teams_basic.insert(0, 'Team', teams)
+        #teams, advanced averages
+        a_df = game.teams_advanced.drop('Team', axis=1)
+        self.teams_advanced = a_df.astype(float)
+        self.teams_advanced.insert(0,'Team', teams)
 
         ###Initializing player averages from input games###
 
@@ -104,27 +96,23 @@ class Averages:
             game: an object of class Game_Info that you want to average in
         """
 
-        #updating team basic averages
-        del game.team_basic['+/-']
-        for key, val in game.team_basic.items():
-            self.team_basic[key] = (float(val) + (self.team_basic[key] * \
-                                      self.game_count)) / (self.game_count + 1)
-        #updating team advanced averages
-        del game.team_advanced['BPM']
-        for key, val in game.team_advanced.items():
-            self.team_advanced[key] = (float(val) + (self.team_advanced[key] * \
-                                      self.game_count)) / (self.game_count + 1)
 
-        #updating oponent basic averages
-        del game.op_basic['+/-']
-        for key, val in game.op_basic.items():
-            self.op_basic[key] = (float(val) + (self.op_basic[key] * \
-                                      self.game_count)) / (self.game_count + 1)
-        #updating opponents, advanced averages
-        del game.op_advanced['BPM']
-        for key, val in game.op_advanced.items():
-            self.op_advanced[key] = (float(val) + (self.op_advanced[key] * \
-                                      self.game_count)) / (self.game_count + 1)
+        #updating basic stats averages
+        for c in self.teams_basic.columns:
+            if c != 'Team':
+                #updating both team and opponent averages
+                for n in [0,1]:
+                    tot1 = self.teams_basic[c][n] * self.game_count
+                    tot1 += float(game.teams_basic[c][n])
+                    self.teams_basic[c][n] = tot1 / (self.game_count + 1)
+        #updating advanced stats averages
+        for c in self.teams_advanced.columns:
+            if c != 'Team':
+                for n in [0,1]:
+                    #advanced team averages
+                    tot2 = self.teams_advanced[c][n] * self.game_count
+                    tot2 += float(game.teams_advanced[c][n])
+                    self.teams_advanced[c][n] = tot2 / (self.game_count +1)
 
         self.game_count += 1
 

@@ -131,35 +131,38 @@ def team_log(team, start_date, end_date, year):
 
         #content
         results = soup.find(id = 'all_schedule')
-        body = results.find('tbody')
-        t_data = body.find_all('tr')
+        #try block for if month does not exist in this season
+        try:
+            body = results.find('tbody')
+            t_data = body.find_all('tr')
 
-        #Grabbing all games for given month over specified days
-        for row in t_data:
-            #ensure row has data
-            if row.get('class') != 'thead':
-                teams = row.find_all('a')
-                #ensure game has been played
-                if len(teams) < 4:
-                    break
-                game = teams[3].get('href')
-                #only games after specificed start date
-                if start_day <= int(game[17:19]) <= end_day:
-                    away = teams[1].get('href')[7:10]
-                    home = teams[2].get('href')[7:10]
-                    if team == home or team == away:
-                        if team == home:
-                            opponent = away
-                        else:
-                            opponent = home
-                        visitor = (team == away)
-                        print(game)
-                        #retrieving basic data from game
-                        b_data, b_tot, b_o_tot = get_box_score(team, opponent, game, 'basic')
-                        #retrieving advanced data from game
-                        a_data, a_tot, a_o_tot = get_box_score(team, opponent, game, 'advanced')
-                        game_logs[game] = [visitor, b_data, b_tot, a_data, a_tot, b_o_tot, a_o_tot, team, opponent]
-
+            #Grabbing all games for given month over specified days
+            for row in t_data:
+                #ensure row has data
+                if row.get('class') != 'thead':
+                    teams = row.find_all('a')
+                    #ensure game has been played
+                    if len(teams) < 4:
+                        break
+                    game = teams[3].get('href')
+                    #only games after specificed start date
+                    if start_day <= int(game[17:19]) <= end_day:
+                        away = teams[1].get('href')[7:10]
+                        home = teams[2].get('href')[7:10]
+                        if team == home or team == away:
+                            if team == home:
+                                opponent = away
+                            else:
+                                opponent = home
+                            visitor = (team == away)
+                            print(game)
+                            #retrieving basic data from game
+                            b_data, b_tot, b_o_tot = get_box_score(team, opponent, game, 'basic')
+                            #retrieving advanced data from game
+                            a_data, a_tot, a_o_tot = get_box_score(team, opponent, game, 'advanced')
+                            game_logs[game] = [visitor, b_data, b_tot, a_data, a_tot, b_o_tot, a_o_tot, team, opponent]
+        except:
+            pass
         #starting new month
         start_day = 1
         months.pop(0)

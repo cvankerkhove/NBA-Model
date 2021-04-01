@@ -17,10 +17,9 @@ class Game_Info:
     #loc
     #team_score
     #op_score
-    #team_basic
-    #team_advanced
-    #op_basic
-    #op_advanced
+
+    #teams_basic
+    #teams_advanced
 
     #if player_data() is called:
     #basic_player_data
@@ -46,12 +45,29 @@ class Game_Info:
         self.team_score = int(game_log[2]['PTS'])
         #opponent score
         self.op_score = int(game_log[5]['PTS'])
-        #team stats
-        self.team_basic = game_log[2]
-        self.team_advanced = game_log[4]
-        #opponent stats
-        self.op_basic = game_log[5]
-        self.op_advanced = game_log[6]
+
+        #teams basic stats
+        team_basic = game_log[2]
+        del team_basic['+/-']
+        op_basic = game_log[5]
+        del op_basic['+/-']
+        #teams advanced stats
+        team_advanced = game_log[4]
+        del team_advanced['BPM']
+        op_advanced = game_log[6]
+        del op_advanced['BPM']
+
+        #pandas dataframe of basic stats (both teams)
+        b_df = pd.DataFrame(team_basic, index=[0])
+        b_df = b_df.append(pd.Series(data= op_basic), ignore_index=True)
+        b_df.insert(0, 'Team', [self.team, self.opponent])
+        b_df.insert(1, 'Home Team ?', [int(not game_log[0]), int(game_log[0])])
+        self.teams_basic = b_df
+        #pandas dataframe of advanced stats (advanced teams)
+        a_df = pd.DataFrame(team_advanced, index=[0])
+        a_df = a_df.append(pd.Series(data= op_advanced), ignore_index=True)
+        a_df.insert(0, 'Team', [self.team, self.opponent])
+        self.teams_advanced = a_df
 
     def player_data(self, game_log):
         """
