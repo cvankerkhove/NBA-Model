@@ -1,3 +1,10 @@
+"""
+File name: game_log_scrape.py
+Description: This file contains functions that use functions to scrape the site
+    basketball-reference.com and collect box scores from any specified NBA
+    game at a certain date in time.
+Author: Chris VanKerkhove
+"""
 import requests
 from bs4 import BeautifulSoup
 
@@ -77,7 +84,7 @@ def get_box_score(team, opponent, game, box_type):
     return data, team_tot, opponent_tot
 
 
-def team_log(team, start = '12-20-2020', end = '03-20-2021', year = '2021'):
+def team_log(team, start_date = '12-20', end_date = '03-20', year = '2021'):
     """
     Takes an input of a string representation of a
     team and returns
@@ -99,18 +106,18 @@ def team_log(team, start = '12-20-2020', end = '03-20-2021', year = '2021'):
     months = []
     game_logs = {}
     #finding the months over which to grab data
-    start_month = num_to_str[int(start[:2])]
-    end_month = num_to_str[int(end[:2])]
+    start_month = num_to_str[int(start_date[:2])]
+    end_month = num_to_str[int(end_date[:2])]
     current = start_month
     months.append(current)
     while current != end_month:
         current = next_[current]
         months.append(current)
     #starting dat (first month)
-    start_day = int(start[3:5])
+    start_day = int(start_date[3:5])
     #ending day (first month)
     if len(months) == 1:
-        end_day = int(end[3:5])
+        end_day = int(end_date[3:5])
     else:
         end_day = 31
 
