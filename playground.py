@@ -38,13 +38,13 @@ ad = avg1.advanced_player_data[is_james]
 print(ad)
 print(bd)
 #team data
-print(avg1.team_basic)
-print(avg1.op_basic)
+print(avg1.teams_basic)
+print(avg1.teams_advanced)
 
 
 ###Getting Box score from Kobe 81 Points
 game = get_games('LAL', '01-22', '01-22', '2006')
 g = game[list(game.keys())[0]]
 print(g.basic_player_data)
-print('Home Team Stats', g.team_basic)
-print('Oponent Team Stats', g.op_basic)
+print('Teams basic Stats', g.teams_basic)
+print('Teams advanced Stats', g.teams_advanced)

@@ -22,7 +22,7 @@ def export_season_stats(Team, Season):
     if not os.path.exists(os.path.join(os.getcwd(), path)):
         os.makedirs(path)
     #getting games
-    games = get_games(Team, '01-01', '03-31', Season)
+    games = get_games(Team, '01-01', '12-31', Season)
     #adding all games to their corresponding file path
     for key,val in games.items():
         game_path = path + '/' + month_key[key[:2]] + '/' + key
@@ -31,20 +31,27 @@ def export_season_stats(Team, Season):
         #adding data to relevant directory
         val.basic_player_data.to_csv(game_path+ '/' + 'basic_player_data.csv', index=False)
         val.advanced_player_data.to_csv(game_path+ '/' +'advanced_player_data.csv', index=False)
+        val.teams_basic.to_csv(game_path+ '/' +'teams_basic_data.csv', index=False)
+        val.teams_advanced.to_csv(game_path+ '/' +'teams_advanced_data.csv', index=False)
 
 
-
-
-game = get_games('LAL', '03-31', '03-31', '2021')
-g = game[list(game.keys())[0]]
-print(g.teams_basic)
-print(g.teams_advanced)
-
-#print(game)
 '''
-g = game[list(game.keys())[0]]
-df = g.basic_player_data
-df.to_csv('Outputs/kob.csv', index=False)
+#updated 04/01
+teams = ['PHI', 'MIL', 'CHO', 'MIA', 'NYK', 'ATL', 'BOS', 'IND', 'CHI', 'TOR',
+          'WAS', 'CLE', 'ORL', 'DET', 'UTA', 'PHO', 'DEN', 'POR', 'DAL', 'BRK',
+          'SAS', 'GSW', 'MEM', 'SAC', 'NOP', 'OKC', 'HOU', 'MIN', 'LAL', 'LAC']
+
+for x in teams:
+    export_season_stats(x, '2021')
 '''
-#x = pd.DataFrame(g.team_basic, index = [0])
-#x.to_csv('Outputs/kob_team.csv',index=False)
+
+#game = get_games('LAL', '03-31', '03-31', '2021')
+
+
+#player data
+#print(avg1.players_games_played)
+#print(avg1.basic_player_data)
+#print(avg1.advanced_player_data)
+#team data
+#print(avg1.teams_basic)
+#print(avg1.teams_advanced)
