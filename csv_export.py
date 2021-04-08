@@ -1,14 +1,13 @@
+"""
+File name: csv_export.py
+Description: This file contains the function for exporting the box score data
+    into csv format. When this file is run it will update with todays most
+    recent games
+"""
 from NBA_Games import get_games
 from averages import Averages
 import pandas as pd
 import os
-
-###Getting Box score from Kobe 81 Points
-#game = get_games('LAL', '02-22', '01-12', '2012')
-
-
-
-
 
 
 def export_season_stats(Team, Season):
@@ -44,14 +43,3 @@ teams = ['PHI', 'MIL', 'CHO', 'MIA', 'NYK', 'ATL', 'BOS', 'IND', 'CHI', 'TOR',
 for x in teams:
     export_season_stats(x, '2021')
 '''
-
-#game = get_games('LAL', '03-31', '03-31', '2021')
-
-
-#player data
-#print(avg1.players_games_played)
-#print(avg1.basic_player_data)
-#print(avg1.advanced_player_data)
-#team data
-#print(avg1.teams_basic)
-#print(avg1.teams_advanced)

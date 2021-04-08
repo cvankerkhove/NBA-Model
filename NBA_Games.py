@@ -95,10 +95,10 @@ class Game_Info:
 
 def get_games(team, start_date='12-20', end_date='05-12' , season=2021):
     """
-    Gets games calling webscraping functions. Begin collecting games from input
+    Gets games by calling webscraping functions. Begin collecting games from input
     start date to input end date in a specified season.
-    Returns a dictionary of
-    Game_Info objects with keys being the date of corresponding game
+    Returns a dictionary of Game_Info objects with keys being the date of
+    corresponding game
 
     Arg(s):
         team: string of the input teams 3 letter abbreviation
