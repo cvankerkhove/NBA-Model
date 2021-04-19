@@ -21,7 +21,7 @@ def export_season_stats(Team, Season):
     if not os.path.exists(os.path.join(os.getcwd(), path)):
         os.makedirs(path)
     #getting games
-    games = get_games(Team, '01-01', '12-31', Season)
+    games = get_games(Team, '03-31', '04-18', Season)
     #adding all games to their corresponding file path
     for key,val in games.items():
         game_path = path + '/' + month_key[key[:2]] + '/' + key
@@ -34,12 +34,11 @@ def export_season_stats(Team, Season):
         val.teams_advanced.to_csv(game_path+ '/' +'teams_advanced_data.csv', index=False)
 
 
-'''
-#updated 04/01
+
+#updated 04/18
 teams = ['PHI', 'MIL', 'CHO', 'MIA', 'NYK', 'ATL', 'BOS', 'IND', 'CHI', 'TOR',
           'WAS', 'CLE', 'ORL', 'DET', 'UTA', 'PHO', 'DEN', 'POR', 'DAL', 'BRK',
           'SAS', 'GSW', 'MEM', 'SAC', 'NOP', 'OKC', 'HOU', 'MIN', 'LAL', 'LAC']
 
 for x in teams:
     export_season_stats(x, '2021')
-'''
