@@ -60,14 +60,18 @@ prev.day <- function(date) {
 }
 
 
-n.past.games <- function(team.data, date, n) {
+n.past.games <- function(team.data, date, n, including = FALSE) {
   #helper function for function that computes moving averages
   #ARG(s):
     #team.data: an object of S4 class "All Seasons Data"
     #date: date to start getting averages from in "MM-DD-YYYY"
+    #including: boolean if to include the input date (note if value is TRUE)
+      #a list of length(n+1) will be returned (vs. n)
   #VALUE: a list of dates in "MM-DD-YYYY' format of the n past games from input date 
   
-  date <- prev.day(date)
+  if (!(including)) {
+    date <- prev.day(date)
+  }
   #process for getting n most recent games 
   n.past.games <- rep(NA, n)
   index <- n
@@ -103,8 +107,9 @@ time.to.numeric <- function(t) {
 
 
 ####Functions for computing Moving Averages of Teams and Players####
+#(for a specified team)
 
-compute.player.mov.avg <- function(team.data, date, n) {
+compute.player.mov.avg <- function(team.data, date, n, including = FALSE) {
   #Collects data of n-past games from a specified data and averages player stats
   #ARG(s):
     #team.data: object of S4 class Team Data
@@ -115,7 +120,7 @@ compute.player.mov.avg <- function(team.data, date, n) {
     #list of 2 dataframes; 1st index = basic player averages
                           #2nd index = advanced player averages
   
-  dates <- n.past.games(team.data, date, n)
+  dates <- n.past.games(team.data, date, n, including)
   #aggregate player data (basic and advanced) over time period
   b.df <- team.data@player.basic[[dates[1]]]
   a.df <- team.data@player.advanced[[dates[1]]]
@@ -156,19 +161,19 @@ compute.player.mov.avg <- function(team.data, date, n) {
 
 
 ###Function for Computing Team Averages and Opponent Averages 
-compute.team.mov.avg <- function(team.data, date, n) {
+compute.team.mov.avg <- function(team.data, date, n, including = FALSE) {
   #Collects data of n-past games from a specified data and averages specified
   #teams and their opponents stats
   #ARG(s):
   #team.data: object of S4 class Team Data
   #date: string input of what game to compute average prior to ("MM-DD-YYYY") 
   #n: number of most recent games for this moving average
-  #dates of n most recent games from date
+  #including: boolean for it to include input date in averages
   #VALUES: #list of 2 dataframes; 1st index = basic teams averages
                                   #2nd index = advanced teams averages
   
   #dates of n most recent games from date
-  dates <- n.past.games(team.data, date, n)
+  dates <- n.past.games(team.data, date, n, including)
   #creating data.frames to store rows for each game used in computing average
   b.team.df <- tibble(team.data@team.basic[[dates[1]]][1,])
   b.opponent.df <- tibble(team.data@team.basic[[dates[1]]][2,])
@@ -185,6 +190,7 @@ compute.team.mov.avg <- function(team.data, date, n) {
     a.opponent.df %>%
       add_row(team.data@team.advanced[[dates[i]]][2,])
   }
+  
   #averaging basic stats for both team and opponent
   b.df <- summarise_all(b.team.df[-c(1,2)],mean)
   b.df <- b.df %>%
@@ -201,6 +207,17 @@ compute.team.mov.avg <- function(team.data, date, n) {
     select(Type, everything())
   return (list(b.df2, a.df2))
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
