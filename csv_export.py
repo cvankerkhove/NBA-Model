@@ -21,7 +21,7 @@ def export_season_stats(Team, Season):
     if not os.path.exists(os.path.join(os.getcwd(), path)):
         os.makedirs(path)
     #getting games
-    games = get_games(Team, '03-31', '04-18', Season)
+    games = get_games(Team, '04-01', '05-10', Season)
     #adding all games to their corresponding file path
     for key,val in games.items():
         game_path = path + '/' + month_key[key[:2]] + '/' + key
@@ -35,7 +35,7 @@ def export_season_stats(Team, Season):
 
 
 
-#updated 04/18
+#updated 05/09
 teams = ['PHI', 'MIL', 'CHO', 'MIA', 'NYK', 'ATL', 'BOS', 'IND', 'CHI', 'TOR',
           'WAS', 'CLE', 'ORL', 'DET', 'UTA', 'PHO', 'DEN', 'POR', 'DAL', 'BRK',
           'SAS', 'GSW', 'MEM', 'SAC', 'NOP', 'OKC', 'HOU', 'MIN', 'LAL', 'LAC']

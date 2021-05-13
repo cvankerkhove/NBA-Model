@@ -21,6 +21,12 @@ for (t in teams) {
 #Warriors 10 day moving averages
 gsw.mv <- season.moving.averages(all.teams.data$GSW, n)
 
+#Nets moving averages
+nets.mv <- season.moving.averages(all.teams.data$BRK, 5)
+
+pac.mv <- season.moving.averages(all.teams.data$IND, 6)
+wiz.mv <- season.moving.averages(all.teams.data$WAS, 6)
+
 
 #Getting season averages at each point in 2021 season
 #min.n games to start averaging
