@@ -23,7 +23,7 @@ create.predictor.df <- function(Team, all.teams.data, all.teams.nmov.avgs,
 #ALL averages stats for input Team going into game
 #KEY: 
   #'t-t': means this teams averages
-  #'t-o': means the averages of opponents this team has playedx
+  #'t-o': means the averages of opponents this team has played
 df1 <- data.frame(team.stats.b[1,]) %>% 
   select(-c('Type')) %>%
   rename_all(funs(paste(., 't-t', sep='.')))
