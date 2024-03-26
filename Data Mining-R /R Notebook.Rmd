@@ -1,0 +1,151 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+In this R Notebook I will give explanations and demonstrations of user created functions that assist in the Data collection, 
+aggregation, and averaging process. Throughout I will refer to several files in this directory along with the functions
+written in those files. 
+
+The function of importance is "get.team.data" from **Helpful_Functions.R**, which retrieves box score data for every game of a 
+specified team over an entire season. The function returns an object of class "All Season Data" (see same file).
+With a simple loop over all teams I have created the quintessential object used throughout this EDA: all.teams.data.
+
+```{r}
+source("Data Structuring/Helpful_Functions.R")
+#Getting all game data from 20201 season
+pth <- "~/Documents/Github /NBA-Model/Seasons_Data/2021"
+#list that contains an S4 object for each team
+all.teams.data <- c()
+teams <- list.files(path=pth)
+
+for (t in teams) {
+  pth.t <- paste(pth, t, sep='/')
+  all.teams.data[[t]] = get.team.data(t, '2021',pth.t)
+}
+```
+
+
+all.teams.data is a compact object containing all and any box score from the 2021 season. We can query any box score 
+(basic or advanced) from this object if we simply have a team abbreviation and game date. 
+
+Lets check out the box score for the most 3s by a team in 2020-2021 season
+```{r}
+team = 'MIL'
+game = '12-29-2020'
+
+#querying this game
+print(all.teams.data[[team]]@player.basic[[game]])
+```
+
+
+Now that we have a simple system for retrieving games in our R environment, we can wrangle the data and draw some insights.
+In the cell below, the code aggregates every players basic stat line for EVERY game in the season using ***aggregate.players.data***
+from ***Offensive_Stats.R***
+
+```{r, echo = T, results = 'hide'}
+source("Data Structuring/Offensive_Stats.R")
+
+players.agg.data <- aggregate.players.data(all.teams.data, "12-20-2020", "05-22-2021")
+
+```
+
+Lets check out some top performances this season and then the distribution of points scored by players who played at least 32 minutes,
+just to show how rare these performances are:
+```{r}
+data <- players.agg.data[[1]]
+#returning top 6 highest Points scored games
+head(arrange(data, desc(PTS)))
+f.data <- filter(data, MP > 32)
+
+hist(f.data$PTS, main = "Player points scored from Game Data (at least 32 MP) ", xlab = "PTS")
+```
+
+With this aggregated data we have an entire seasons worth of player data condesley stored in a single data.frame. As result we 
+can perform various types of data analysis through filtering, grouping, averaging, etc. 
+
+Lets use this data to visualize three point shooting styles for the Nets, Jazz, and Knicks:
+
+```{r}
+library(ggplot2)
+#list of dates that match season.day variable with a char of date for indexing 
+dates <- players.agg.data[[3]]
+b.data <- players.agg.data[[1]]
+#game data aggregated by team and day
+team.data <- group_by(b.data, team, season.day) %>%
+  summarise_each(sum, -Players) %>%
+  mutate( is.home = is.home >0)
+
+#plotting  3-point shooting trends across teams
+dat <- filter(team.data, team %in% c('BRK', 'UTA', 'NYK'))
+plot_multi_histogram(dat, 'X3PA', 'team')
+
+
+```
+
+
+As you can see, the Utah Jazz shoots a higher frequency of threes than other teams, and the Knicks shoot far less (but has a tigher distribution). The Nets on the other hand vary more game to game in how many 3s they shoot (likely a result of various different lineups throughout the season).
+
+
+Now an important task to address is organizing averages for players (and teams), not just at our current state but at any given point in 
+time. After all, when we make predictions with our model, we would only have access to data prior to that game in time.
+For this task I have created averaging functions and classes that convienently store averages at specified points in time.
+Below I will create a said averages object using ***get.players.averages*** from ***Offensive_Stats***
+
+```{r}
+source("Data Structuring/Offensive_Stats.R")
+all.player.averages <- get.players.averages(players.agg.data[[1]], players.agg.data[[2]], players.agg.data[[3]])
+```
+
+Lets take a look at the scoring title race this past season
+
+```{r}
+#top scorers at the end of the year
+top.scorers <- c('Bradley Beal', 'Damian Lillard', 'James Harden', 'Stephen Curry','Giannis Antetokounmpo')
+#top.scorers <- head(all.player.averages@basic.mean$`05-22-2021`$Players)
+games <- names(all.player.averages@basic.mean)
+games <- games[9:length(games)]
+#iterating through games, collecting averages for top 6 players
+scores.df <- filter(all.player.averages@basic.mean[[games[1]]], Players %in% top.scorers) %>%
+  select(c('Players', 'PTS')) %>%
+  mutate(day = 1)
+#iterating throough rest of the dates in the season
+for (i in 2:length(games)) {
+  new.rows <- filter(all.player.averages@basic.mean[[games[i]]], Players %in% top.scorers) %>%
+    select(c('Players', 'PTS')) %>%
+    mutate(day = i)
+  #binding rows to data.frame
+  scores.df <- bind_rows(scores.df, new.rows)
+  i <- i + 1
+}
+
+#plotting using scores.df
+ggplot(data=scores.df, aes(x=day, y=PTS, group = Players, colour= Players)) +
+  geom_line()
+
+
+```
+
+So one final main structural decision I made was aggregating this data and storing averages on a team-by-team level, eliminating the
+need to repeatedly filter data when working with specific teams. For this I have created storage classes ***Season Averages*** for 
+a single team. Similarly there is ***N Averages*** which stores moving averages for a single team at each point in the season. 
+
+To demonstrate, lets look at the moving averages for Stephen Curry's moving averages in that scoring spike at around the 100 day 
+mark
+
+```{r}
+#getting season averages and moving averages for warriors
+gsw.agg.data <- aggregate.data.team(all.teams.data$GSW)
+gsw.season.avgs <- season.averages(all.teams.data$GSW, gsw.agg.data[[1]], gsw.agg.data[[2]], 
+                                        gsw.agg.data[[3]], gsw.agg.data[[5]])
+gsw.mov <- n.game.averages(all.teams.data$GSW, gsw.agg.data[[1]], gsw.agg.data[[2]], 
+                                        gsw.agg.data[[3]], gsw.agg.data[[5]])
+warriors.mov@player.basic.mean$`03-26-2021`
+
+
+```
+
+
+
+
+

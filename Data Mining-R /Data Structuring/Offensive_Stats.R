@@ -20,9 +20,10 @@ library(dplyr)
 
 setClass("Season Averages", slots=list(name = "character", min.n = "numeric",
                                        player.basic.mean = "list", player.basic.sd = "list",
-                                       team.basic.mean = "list", team.basic.sd = "list"))
+                                       team.basic.mean = "list", team.basic.sd = "list",
+                                       player.advanced.mean= "list"))
 
-season.averages <- function(team.data, player.df, team.df, dates, min.n = 5) {
+season.averages <- function(team.data, player.df, player.df.a, team.df, dates, min.n = 5) {
   #Takes in data.frames of aggregated game data for a single team and computes 
   #averages and standard deviations for player and team basic stats, storing them 
   #into an object of class "Season Averages"
@@ -31,6 +32,7 @@ season.averages <- function(team.data, player.df, team.df, dates, min.n = 5) {
   #ARG(s):
     #team.data: An S4 class object "All Season Data" 
     #player.df: a dataframe of the aggregated player stats over games
+    #player.df.a: a dataframe of the aggregated advanced player stats 
     #team.df: a dataframe of the aggregated team stats over games
     #dates: a list of dates used for collecting aggregated data to match game num
     #min.n: min amount of games to start recording averages (default=5)
@@ -40,6 +42,7 @@ season.averages <- function(team.data, player.df, team.df, dates, min.n = 5) {
   player.sd.list <- c()
   team.avgs.list <- c()
   team.sd.list <- c()
+  a.player.avgs.list <- c()
   
   #date of all games for this team
   games <- names(team.data@player.basic)
@@ -66,24 +69,33 @@ season.averages <- function(team.data, player.df, team.df, dates, min.n = 5) {
           summarise_each(funs(sd)) %>%
           mutate(games=games.played$n)
         sd.df1 <- sd.df1[order(sd.df1$PTS, decreasing=TRUE),]
+        ##Advanced Player Stats (weighted.mean, using MP as weight)
+        df1.a <- filter(player.df.a, season.day < game.num) %>%
+          select(-c('season.day', 'is.home'))
+        games.played2 <- count(df1.a, Players)
+        mean.df1.a <- group_by(df1.a, Players) %>%
+          summarise_each(funs(weighted.mean(., MP)), -MP) %>%
+          mutate(games=games.played2$n)
         
         ##Averaging Team Stats
         df2 <- filter(team.df, season.day < game.num) %>%
           select(-c("season.day"))
+        games.played <- count(df2, Team)
         #dataframe of averages for team as a whole
         mean.df2 <- group_by(df2, Team) %>%
           summarise_each(funs(mean)) %>%
-          mutate(games=i)
+          mutate(games=games.played)
         #dataframe of standard deviations for team stats
         sd.df2 <- group_by(df2, Team) %>%
           summarise_each(funs(sd)) %>%
-          mutate(games=i)
+          mutate(games=games.played)
         
         #appending to our lists
         player.avgs.list[[date]] <- mean.df1
         player.sd.list[[date]] <- sd.df1
         team.avgs.list[[date]] <- mean.df2
         team.sd.list[[date]] <- sd.df2
+        a.player.avgs.list[[date]] <- mean.df1.a
       }
       i <- i + 1
     }
@@ -91,7 +103,8 @@ season.averages <- function(team.data, player.df, team.df, dates, min.n = 5) {
   #S4 class object of Season Averages
   s4 <- new("Season Averages", name = team.data@name, min.n = min.n, 
             player.basic.mean=player.avgs.list, player.basic.sd=player.sd.list,
-            team.basic.mean = team.avgs.list, team.basic.sd=team.sd.list)
+            team.basic.mean = team.avgs.list, team.basic.sd=team.sd.list,
+            player.advanced.mean=a.player.avgs.list)
   return (s4)
 }
 
@@ -106,11 +119,13 @@ season.averages <- function(team.data, player.df, team.df, dates, min.n = 5) {
 #player.basic.sd: list of SD of players basic stats
 #team.basic.mean: list of means of teams basic stats
 #team.basic.sd: list of SD of teams basic stats
+#player.advanced.mean: list of Advanced stats means
 setClass("N Averages", slots=list(name = "character", n = "numeric",
                                   player.basic.mean = "list", player.basic.sd = "list",
-                                  team.basic.mean = "list", team.basic.sd = "list"))
+                                  team.basic.mean = "list", team.basic.sd = "list",
+                                  player.advanced.mean = "list"))
 
-n.game.averages <- function(team.data, player.df, team.df, dates, n = 7) {
+n.game.averages <- function(team.data, player.df, player.df.a, team.df, dates, n = 7) {
   #Takes in data.frames of aggregated game data for a single team and computes 
   #averages and standard deviations for player and team basic stats, storing them 
   #into an object of class "N Averages"
@@ -127,6 +142,7 @@ n.game.averages <- function(team.data, player.df, team.df, dates, n = 7) {
   player.sd.list <- c()
   team.avgs.list <- c()
   team.sd.list <- c()
+  player.a.avgs.list <- c()
   #date of all games for this team
   games <- names(team.data@player.basic)
   #stack for golding games chronilogically
@@ -166,6 +182,14 @@ n.game.averages <- function(team.data, player.df, team.df, dates, n = 7) {
           mutate(games=games.played$n)
         sd.df1 <- sd.df1[order(sd.df1$PTS, decreasing=TRUE),]
         
+        ##Advanced Player Stats (weighted.mean, using MP as weight)
+        df1.a <- filter(player.df.a, season.day %in% seq(game.num.first, game.num.last,1)) %>%
+          select(-c('season.day', 'is.home'))
+        games.played2 <- count(df1.a, Players)
+        mean.df1.a <- group_by(df1.a, Players) %>%
+          summarise_each(funs(weighted.mean(., MP)), -MP) %>%
+          mutate(games=games.played2$n)
+        
         ##Averaging Team Stats
         df2 <- filter(team.df, season.day %in% seq(game.num.first, game.num.last,1)) %>%
           select(-c("season.day"))
@@ -185,6 +209,7 @@ n.game.averages <- function(team.data, player.df, team.df, dates, n = 7) {
         player.sd.list[[date]] <- sd.df1
         team.avgs.list[[date]] <- mean.df2
         team.sd.list[[date]] <- sd.df2
+        player.a.avgs.list[[date]] <- mean.df1.a
         
         #iterating first index
         idx1 <- idx1+1
@@ -194,7 +219,8 @@ n.game.averages <- function(team.data, player.df, team.df, dates, n = 7) {
   #S4 class object of Season Averages
   s4 <- new("N Averages", name = team.data@name, n = n, 
             player.basic.mean=player.avgs.list, player.basic.sd=player.sd.list,
-            team.basic.mean = team.avgs.list, team.basic.sd=team.sd.list)
+            team.basic.mean = team.avgs.list, team.basic.sd=team.sd.list,
+            player.advanced.mean=player.a.avgs.list)
   return (s4)
 }
 
@@ -238,12 +264,15 @@ aggregate.data.team <- function(team.data, start_date= "12-21-2020",
     advanced.team <- team.data@team.advanced[[game]]
     #getting value for if team was home or away
     is_home <- filter(basic.team, Team == team.data@name)[,2]
+    #getting value for if team won (1) or lost (0)
+    win.lose <- as.numeric(filter(basic.team, 
+        Team == team.data@name)[,21] > filter(basic.team, Team != team.data@name)[,21])
     #marking what day in the season this is for the team and overall
     sn.day <- match(game, dates)
-    basic.player <- mutate(basic.player, season.day=sn.day, is.home=is_home)
-    advanced.player <- mutate(advanced.player, season.day=sn.day, is.home=is_home)
-    basic.team <- mutate(basic.team, season.day=sn.day, is.home=is_home)
-    advanced.team <- mutate(advanced.team, season.day=sn.day, is.home=is_home)
+    basic.player <- mutate(basic.player, season.day=sn.day, is.home=is_home, win = win.lose)
+    advanced.player <- mutate(advanced.player, season.day=sn.day, is.home=is_home, win=win.lose)
+    basic.team <- mutate(basic.team, season.day=sn.day, is.home=is_home, win = win.lose)
+    advanced.team <- mutate(advanced.team, season.day=sn.day, is.home=is_home, win=win.lose)
     #adding rows to main dfs
     if (is.data.frame(b.players.df)) {
       b.players.df<- bind_rows(b.players.df, basic.player)
@@ -311,7 +340,7 @@ get.players.averages <- function(b.all.players.df, a.all.players.df, dates) {
   a.avgs.list <- c()
   for (i in 2:length(dates)) {
     ##Basic Stats
-    df1 <- filter(b.all.players.df, season.day < i)
+    df1 <- filter(select(b.all.players.df, -c('team')), season.day < i)
     games.played.b <- count(df1, Players)
     #dataframe of averages of each stat
     mean.df1 <- group_by(df1, Players) %>%
@@ -331,7 +360,7 @@ get.players.averages <- function(b.all.players.df, a.all.players.df, dates) {
     df2 <- filter(a.all.players.df, season.day < i)
     games.played.a <- count(df2, Players)
     df2 <- group_by(df2, Players) %>%
-      summarise_each(funs(mean)) %>%
+      summarise_each(funs(weighted.mean(.,MP)), -MP) %>%
       mutate(games=games.played.a$n)
     df2 <- df2[order(df2$USG., decreasing=TRUE),]
     a.avgs.list[[dates[i]]] <- df2
@@ -373,7 +402,7 @@ aggregate.players.data <- function(all.teams.data, start_date, end_date) {
   #looping through all teams and all games for each team to populate dfs
   teams <- names(all.teams.data)
   for (t in teams) {
-    print(t)
+    #print(t)
     games <- names(all.teams.data[[t]]@player.basic)
     for (game in games) {
       ##getting data
@@ -383,7 +412,7 @@ aggregate.players.data <- function(all.teams.data, start_date, end_date) {
       is_home <- filter(all.teams.data[[t]]@team.basic[[game]], Team == t)[,2]
       #marking what day in the season this is for the team and overall
       sn.day <- match(game, dates)
-      basic <- mutate(basic, season.day=sn.day, is.home=is_home)
+      basic <- mutate(basic, season.day=sn.day, is.home=is_home, team= t)
       advanced <- mutate(advanced, season.day=sn.day, is.home=is_home)
       #adding rows to main dfs
       if (is.data.frame(b.all.players.df)) {

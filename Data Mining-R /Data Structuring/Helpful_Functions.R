@@ -4,7 +4,7 @@
   #return a dataframe of moving averages for players and teams
 #Author(s): Chris VanKerkhove
 library(dplyr)
-
+library(ggplot2)
 ####Class for storing gathered Box Scores####
 
 #All Season Data is an S4 object that stores basic,advanced box score data for
@@ -21,13 +21,13 @@ setClass("All Season Data", slots=list(name = "character",season="character", pl
                                        team.advanced="list"))
 
 
-get.team.data <- function(team, season) {
+get.team.data <- function(team, season, pth) {
   #function that searches through a specified NBA team games (in a specified season)
   #and executes processes for storing information in a S4 R class object ('All Data')
   #Arg(s):
   #team: 3 letter character representing NBA team
   #season: Date of season (year it ends in)
-  pth <- paste("Seasons_Data", season, team, sep='/')
+  
   #empty containers for box score data
   b.player <- c()
   a.player <- c()
@@ -51,7 +51,7 @@ get.team.data <- function(team, season) {
   return (s4)
 } 
 
-####Helper Functions to computing Moving Averages####
+####Helpful Functions####
 prev.day <- function(date) {
   #function takes an input of date "MM-DD-YY format
   #and returns the previous day in same character format
@@ -150,11 +150,9 @@ time.to.numeric <- function(t) {
   return(min + sec/60)
 }
 
-get.pos.data <- function() {
+get.pos.data <- function(positions_data) {
   #function that when runs returns a datafrmae with valid player positions 
   #for each player in the league
-  #getting valid player positions data
-  positions_data <- read.csv("NBA_player_position.csv")
   #removing jr. suffix function for apply function
   suffix <- function(x) {
     suf <- substr(x, nchar(x)-3, nchar(x))
@@ -168,6 +166,36 @@ get.pos.data <- function() {
   }
   players_new <- sapply(positions_data$Player, suffix)
   positions_data$Player <- players_new
+  #adding group column to dataframe
+  #helper function for condensing positions
+  defense.group <- function(pos) {
+    if (pos %in% c('PG', 'SG')) {
+      group <- 'G'
+    }
+    else if (pos %in% c('SF', 'PF')) {
+      group <- 'F'
+    }
+    else {
+      group <- 'C'
+    }
+    return(group)
+  }
+  positions_data <- mutate(positions_data, Group = Pos)
+  positions_data$Group <- apply(positions_data['Pos'], 1, defense.group)
   
   return(positions_data)
 }
+
+
+####Plotting####
+plot_multi_histogram <- function(df, feature, label_column) {
+  plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
+    geom_histogram(alpha=0.7, position="identity", aes(y = ..density..), color="black") +
+    geom_density(alpha=0.7) +
+    geom_vline(aes(xintercept=mean(eval(parse(text=feature)))), color="black", linetype="dashed", size=1) +
+    labs(x=feature, y = "Density")
+  plt + guides(fill=guide_legend(title=label_column))
+}
+
+
+

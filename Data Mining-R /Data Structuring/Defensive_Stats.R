@@ -135,6 +135,7 @@ def.impact.averages <- function(team, all.teams.data, diffs_tot, diffs_pos,
         summarise_each(funs(weighted.mean(.,MP)), -MP) %>%
         mutate(n=n.game[2]) %>%
         left_join(positions, by = c("Players" = "Player"))
+      df.group$Pos <- apply(df.group['Pos'], 1, defense.group)
       #append the averages to list for games leading up to this date
       impact.averages.group[[game]] <- select(df.group, -c('X...', 'is.home'))
     } 
