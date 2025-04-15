@@ -93,7 +93,7 @@ class Game_Info:
 
 
 
-def get_games(team, start_date='12-20', end_date='05-12' , season=2021):
+def get_games(team, start_date, end_date , season):
     """
     Gets games by calling webscraping functions. Begin collecting games from input
     start date to input end date in a specified season.

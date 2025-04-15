@@ -2,8 +2,10 @@
 File name: sandbox.py
 Description: A file to run and call user functions for viewing statistics
 """
+import time
 import user_functions as func
 from NBA_Games import get_games
+from csv_export import export_season_stats
 
 ##Getting Averages for James Harden over 'Flamethrower stretch'
 #print('James Harden 12-13 to 02-05')
@@ -22,6 +24,7 @@ from NBA_Games import get_games
 
 
 print('Scrapping some recent games')
-recentGames = get_games('PHO', '03-20', '05-10' '2023')
+export_season_stats('PHO', '2024')
 
-print(recentGames)
+
+print('done')

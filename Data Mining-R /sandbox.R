@@ -1,10 +1,10 @@
-setwd("~/Documents/GitHub /NBA-Model")
+setwd("~/Documents/GitHub/NBA-Model")
 source("Data Mining-R /Data Structuring/Helpful_Functions.R")
 source("Data Mining-R /Data Structuring/Offensive_Stats.R")
 source("Data Mining-R /Data Structuring/Defensive_Stats.R")
 
 #Getting all game data from 20201 season
-pth <- "~/Documents/Github /NBA-Model/Seasons_Data/2021"
+pth <- "~/Documents/Github/NBA-Model/Seasons_Data/2021"
 #list that contains an S4 object for each team
 all.teams.data <- c()
 teams <- list.files(path=pth)

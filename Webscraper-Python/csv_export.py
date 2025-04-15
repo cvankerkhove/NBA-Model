@@ -13,17 +13,22 @@ import os
 def export_season_stats(Team, Season):
     """
     """
+    print("ADADADA")
     #string month key for accessing month directories
     month_key = {'01': 'January', '02': 'February', '03': 'March', '04': 'April',
            '05': 'May', '06': 'June', '07': 'July', '08': 'August', '09': 'September',
            '10' : 'October', '11': 'November', '12': 'December'}
     path = 'Seasons_Data/' + Season + '/' + Team
+    print(path)
     if not os.path.exists(os.path.join(os.getcwd(), path)):
         os.makedirs(path)
     #getting games
-    games = get_games(Team, '04-01', '05-10', Season)
+    games = get_games(Team, '03-23', '03-25', Season)
+    print('GAMESSSSS')
+    print(games)
     #adding all games to their corresponding file path
     for key,val in games.items():
+        print(key)
         game_path = path + '/' + month_key[key[:2]] + '/' + key
         if not os.path.exists(os.path.join(os.getcwd(), game_path)):
             os.makedirs(game_path)
@@ -36,9 +41,9 @@ def export_season_stats(Team, Season):
 
 
 #updated 05/09
-teams = ['PHI', 'MIL', 'CHO', 'MIA', 'NYK', 'ATL', 'BOS', 'IND', 'CHI', 'TOR',
-          'WAS', 'CLE', 'ORL', 'DET', 'UTA', 'PHO', 'DEN', 'POR', 'DAL', 'BRK',
-          'SAS', 'GSW', 'MEM', 'SAC', 'NOP', 'OKC', 'HOU', 'MIN', 'LAL', 'LAC']
+#teams = ['PHI', 'MIL', 'CHO', 'MIA', 'NYK', 'ATL', 'BOS', 'IND', 'CHI', 'TOR',
+#          'WAS', 'CLE', 'ORL', 'DET', 'UTA', 'PHO', 'DEN', 'POR', 'DAL', 'BRK',
+#          'SAS', 'GSW', 'MEM', 'SAC', 'NOP', 'OKC', 'HOU', 'MIN', 'LAL', 'LAC']
 
-for x in teams:
-    export_season_stats(x, '2021')
+#for x in teams:
+#    export_season_stats(x, '2021')

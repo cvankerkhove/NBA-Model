@@ -6,6 +6,7 @@ Description: This file contains functions that use functions to scrape the site
 Author: Chris VanKerkhove
 """
 import requests
+import time
 from bs4 import BeautifulSoup
 
 def get_box_score(team, opponent, game, box_type):
@@ -23,6 +24,10 @@ def get_box_score(team, opponent, game, box_type):
     """
     URL = 'https://www.basketball-reference.com'
     URL = URL + game
+    print('6 Second Timeout for Rate Limit')
+    time.sleep(7)
+    print('Timeout over')
+    
     page = requests.get(URL)
     soup = BeautifulSoup(page.content, 'html.parser')
     ###PROCESS FOR RETRIEVING BOX SCORE
@@ -123,14 +128,27 @@ def team_log(team, start_date, end_date, year):
 
     #iterating through different months
     stop = False
+    print("MONTHS")
+    print(months)
     while not stop:
         month = months[0]
         URL = 'https://www.basketball-reference.com/leagues/NBA_' + year + '_games-' + month + '.html'
+        print(URL)
+        # Need to set a timeout to avoid Basketball reference Rate Limit
+        # which currently specifies it will lock an account if requests exceed
+        # 20 per minute
+        print('6 Second Timeout for Rate Limit')
+        time.sleep(7)
+        print('Timeout over')
+
         page = requests.get(URL)
         soup = BeautifulSoup(page.content, 'html.parser')
 
+
         #content
         results = soup.find(id = 'all_schedule')
+        print('Results')
+        print(results)
         #try block for if month does not exist in this season
         try:
             body = results.find('tbody')
